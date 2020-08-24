@@ -1,0 +1,30 @@
+{
+  "name": "lyrics_classification_naive_bayes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cvthang56th2/lyrics_classification_naive_bayes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cvthang56th2/lyrics_classification_naive_bayes/issues"
+  },
+  "homepage": "https://github.com/cvthang56th2/lyrics_classification_naive_bayes#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "puppeteer": "^5.2.1",
+    "puppeteer-core": "^5.2.1",
+    "remove-punctuation": "0.0.4",
+    "vietnamese-stopwords": "0.0.2",
+    "vntk": "^1.4.4",
+    "whichx": "^2.1.2"
+  }
+}

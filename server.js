@@ -9,7 +9,7 @@ const removePunctuation = require('remove-punctuation');
 
 app.use(cors())
 
-const classifer = require('./train.js')
+const classifer = require('./classifer.js')
 
 console.log('classifer', classifer)
 

@@ -1,5 +1,5 @@
 const fs = require('fs')
-const data = require('./data.json')
+const data = require('./data/data100.json')
 const helpers = require('./helpers')
 
 const main = async () => {
@@ -11,7 +11,7 @@ const main = async () => {
     }).join(' ')
     return resultObj
   }, {})
-  await fs.writeFileSync('data/processed_data.json', JSON.stringify(trainDataImport, 2, 0))
+  await fs.writeFileSync('data/processed_data_100.json', JSON.stringify(trainDataImport, 2, 0))
 }
 
 main()

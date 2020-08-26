@@ -30,11 +30,12 @@ const puppeteer = require('puppeteer');
     }
   }
   const browser = await puppeteer.launch({
-    headless: false
+    // headless: false
   });
   const page = await browser.newPage();
   
   // await page.setViewport({ width: 1200, height: 1800 });
+  const MAX_SONG = 100
   let resultObj = {}
   for (let musicType in crawlData) {
     console.log('musicType', musicType)
@@ -42,11 +43,11 @@ const puppeteer = require('puppeteer');
       songList: []
     }
     // Get list song link
-    for (let i = 0; i < 5; i++) { // i < 5
+    let countSongs = 0
+    for (let i = 0; i < 15; i++) { // i < 5
       let link = `${crawlData[musicType].link.split('.html')[0]}${i ? '.' + i : ''}.html`
-      console.log('link', link)
       await page.goto(link, {
-        // waitUntil: 'domcontentloaded'
+        waitUntil: 'domcontentloaded'
       })
       let computedLinkArr = await page.evaluate(() => {
         let resultArr = []
@@ -66,7 +67,7 @@ const puppeteer = require('puppeteer');
       for (let songObj of computedLinkArr) {
         console.log('songObj.link', songObj.link)
         await page.goto(songObj.link, {
-          // waitUntil: 'domcontentloaded'
+          waitUntil: 'domcontentloaded'
         })
         songObj.lyrics = await page.evaluate(() => {
           const lyricsHTML = document.querySelector('#divLyric')
@@ -76,13 +77,21 @@ const puppeteer = require('puppeteer');
           }
           return lyricsHTML.innerText
         })
+        if (songObj.lyrics) {
+          countSongs++
+        }
+        if (countSongs === MAX_SONG) {
+          break
+        }
       }
       computedLinkArr = computedLinkArr.filter(songObj => songObj.lyrics)
       resultObj[musicType].songList = resultObj[musicType].songList.concat(computedLinkArr)
+      if (countSongs === MAX_SONG) {
+        break
+      }
     }
-
   }
   // console.log('resultObj', JSON.stringify(resultObj, 2, 0))
-  await fs.writeFileSync('data/data5.json', JSON.stringify(resultObj, 2, 0))
+  await fs.writeFileSync('data/datacm.json', JSON.stringify(resultObj, 2, 0))
   await browser.close();
 })();

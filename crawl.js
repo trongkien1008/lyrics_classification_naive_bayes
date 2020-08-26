@@ -70,17 +70,19 @@ const puppeteer = require('puppeteer');
         })
         songObj.lyrics = await page.evaluate(() => {
           const lyricsHTML = document.querySelector('#divLyric')
-          if (!(lyricsHTML && lyricsHTML.innerText)) {
+          let lyrics = lyricsHTML && lyricsHTML.innerText
+          if (!lyrics || (lyrics && lyrics.includes('Hiện chưa có lời bài hát'))) {
             return ''
           }
           return lyricsHTML.innerText
         })
       }
+      computedLinkArr = computedLinkArr.filter(songObj => songObj.lyrics)
       resultObj[musicType].songList = resultObj[musicType].songList.concat(computedLinkArr)
     }
 
   }
   // console.log('resultObj', JSON.stringify(resultObj, 2, 0))
-  await fs.writeFileSync('data5.txt', JSON.stringify(resultObj, 2, 0))
+  await fs.writeFileSync('data/data5.json', JSON.stringify(resultObj, 2, 0))
   await browser.close();
 })();

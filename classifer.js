@@ -4,18 +4,20 @@ const WhichX = require("whichx")
 const classifer = new WhichX()
 
 //TOTAL - data training.
-trainData = {
-  //1
-  'nhạc trẻ': 'nhạc trẻ',
-  //2
-  'nhạc trữ tình': 'nhạc trữ tình',
-  //3
-  'nhạc trịnh': 'nhạc trịnh',
-  //4
-  'nhạc cách mạng': 'nhạc cách mạng',
-  //5
-  'rock việt': 'rock việt'
-}
+// const trainData = {
+//   //1
+//   'nhạc trẻ': 'nhạc trẻ',
+//   //2
+//   'nhạc trữ tình': 'nhạc trữ tình',
+//   //3
+//   'nhạc trịnh': 'nhạc trịnh',
+//   //4
+//   'nhạc cách mạng': 'nhạc cách mạng',
+//   //5
+//   'rock việt': 'rock việt'
+// }
+
+const trainData = require('./processed_data.json')
 
 classifer.addLabels(Object.keys(trainData))
 for (const key in trainData) {

@@ -1,4 +1,4 @@
-const WhichX = require("whichx")
+const WhichX = require("./whichx_updated")
 
 //WHICHX
 const classifer = new WhichX()

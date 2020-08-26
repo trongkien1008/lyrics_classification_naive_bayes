@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const cors = require('cors')
 const app = express()
@@ -7,6 +8,9 @@ const helpers = require('./helpers')
 app.use(cors())
 
 const classifer = require('./classifer.js')
+
+// export bag of words
+fs.writeFileSync('data/bag_of_words.json', JSON.stringify(classifer.export(), 2, 0))
 
 app.get('/', function (req, res) {
   let result

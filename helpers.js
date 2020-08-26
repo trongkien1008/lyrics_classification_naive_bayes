@@ -9,7 +9,7 @@ const handleString = (str) => {
     .tag(removePunctuation(str).replace(/-|‘|’|“|”/g, ''), 'text')
     .toLowerCase()
     .split(' ')
-    .filter(val => !stopwords.includes(val) && isNaN(val))
+    .filter(val => ![...stopwords, 'x2', 'x4'].includes(val) && isNaN(val))
     .join(' ')
 }
 

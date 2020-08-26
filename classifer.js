@@ -1,4 +1,4 @@
-// const fs = require('fs')
+const fs = require('fs')
 const WhichX = require("./whichx_updated")
 
 //WHICHX
@@ -6,7 +6,7 @@ const classifer = new WhichX()
 
 
 // train
-// const trainData = require('./data/processed_data1.json')
+// const trainData = require('./data/processed_data_100.json')
 
 // classifer.addLabels(Object.keys(trainData))
 // for (const key in trainData) {

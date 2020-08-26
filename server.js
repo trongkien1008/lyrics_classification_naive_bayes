@@ -9,9 +9,6 @@ app.use(cors())
 
 const classifer = require('./classifer.js')
 
-// export bag of words
-// fs.writeFileSync('data/bag_of_words.json', JSON.stringify(classifer.export(), 2, 0))
-
 app.get('/', function (req, res) {
   let result
   if (req.query.title) {

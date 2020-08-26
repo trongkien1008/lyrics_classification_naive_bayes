@@ -17,7 +17,7 @@ const classifer = new WhichX()
 //   'rock việt': 'rock việt'
 // }
 
-const trainData = require('./processed_data.json')
+const trainData = require('./data/processed_data1.json')
 
 classifer.addLabels(Object.keys(trainData))
 for (const key in trainData) {

@@ -20,6 +20,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "lodash": "^4.17.20",
     "puppeteer": "^5.2.1",
     "puppeteer-core": "^5.2.1",
     "remove-punctuation": "0.0.4",

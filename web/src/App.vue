@@ -51,41 +51,47 @@
         </template>
         <template v-else-if="currentPage === 'list'">
           <h2>Danh sách bài hát</h2>
-          <v-layout>
-            <v-text-field v-model="keyword" placeholder="Tìm kiếm bài hát (bằng tên, nhạc sĩ, lời)..." label="Tìm kiếm" @keydown.enter="doSearch" />
-            <v-btn class="mr-2" @click="doSearch">Tìm</v-btn>
-            <v-btn @click="doCancel">Hủy</v-btn>
-          </v-layout>
-
-          <v-layout wrap>
-            <v-flex v-for="(typeObj, tIndex) in allDataArr" :key="`type-${tIndex}`" xs2 pr-2>
-              <h4>Thể loại: {{ typeObj.typeName }}</h4>
-              <div v-for="(songObj, sIndex) in typeObj.songList" :key="`type-${tIndex}-song-${sIndex}`" class="song-item py-1">
-                 <a @click.stop="gotoLink(songObj.link)">{{ songObj.name }} - {{ songObj.singer }}</a>
-              </div>
-            </v-flex>
-          </v-layout>
+          <v-text-field v-model="keywordSong" placeholder="Tìm kiếm bài hát (bằng tên, nhạc sĩ, lời)..." label="Tìm kiếm" />
+          <v-autocomplete v-model="filterSong" placeholder="Thể loại" label="Chọn Thể loại" :items="typesNameSongs" clearable />
+          <v-data-table
+            :search="keywordSong"
+            :headers="headersSongs"
+            :items="listSongs"
+            :items-per-page="50"
+            class="elevation-1"
+            @click:row="gotoLink"
+          />
         </template>
         <template v-else-if="currentPage === 'bow'">
-          <h2>Túi đựng từ (Bag of Words)</h2>
-          <v-layout column>
-            <v-flex v-for="(typeObj, tIndex) in bagOfWords" :key="`type-${tIndex}`" class="mt-4">
-              <v-layout justify-space-between="">
-                <h4>Thể loại: {{ typeObj.typeName }}</h4>
-                <p>Tổng số từ: {{ typeObj.wordTotal }}</p>
-              </v-layout>
+          <v-layout class="justify-space-between">
+            <h2>Túi đựng từ (Bag of Words)</h2>
+            <v-btn @click.stop="showSastify = !showSastify">Hiện thống kê</v-btn>
+          </v-layout>
+          <template v-if="showSastify">
+            <h3>Thống kê sương sương</h3>
+            <h4>Số label: {{ totalLabel }}</h4>
               <v-data-table
-                :headers="headers"
-                :items="typeObj.words"
-                :items-per-page="5"
+                :headers="headerSastify"
+                :items="sastifyBOW"
                 class="elevation-1"
               />
-            </v-flex>
-          </v-layout>
+          </template>
+          <v-text-field v-model="keywordBow" placeholder="Tìm kiếm từ..." label="Tìm kiếm" />
+          <v-autocomplete v-model="filterBow" placeholder="Thể loại" label="Chọn Thể loại" :items="typesNameBOW" clearable />
+
+
+          <v-data-table
+            :search="keywordBow"
+            :headers="headersBow"
+            :items="bagOfWords"
+            :items-per-page="50"
+            class="elevation-1"
+          />
         </template>
         <template v-else-if="currentPage === 'about'">
           <h2>About</h2>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, laudantium consequuntur! Sint adipisci suscipit accusantium accusamus est eos nostrum cumque consectetur, aperiam mollitia provident rerum nobis inventore nesciunt voluptate eum.</p>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. là lá la lala.</p>
+          <p>Đây là bài <b>Phân thể loại bài hát</b> dựa trên <strong>Naive Bayes</strong> được làm bởi nhóm của Thắng và Kiên</p>
         </template>
       </div>
     </v-layout>
@@ -97,24 +103,12 @@
   min-width: 256px !important;
   max-width: 256px !important;
 }
-.song-item {
-  border-bottom: 1px solid #eee;
-}
-
-.song-item a:hover {
-  text-decoration: underline;
-}
 </style>
 
 <script>
 import allData from '../../data/data100.json'
-import bagOfWords from '../../data/bag_of_words100.json'
+import dataBagOfWords from '../../data/bag_of_words100.json'
 import Axios from 'axios'
-
-const allDataArr = Object.keys(Object.assign({}, allData)).map(typeName => ({
-  typeName,
-  songList: allData[typeName].songList
-}))
 
 export default {
   data () {
@@ -126,36 +120,93 @@ export default {
         { title: 'Túi đựng từ', value: 'bow', icon: 'mdi-format-list-bulleted' },
         { title: 'About', value: 'about', icon: 'mdi-help-box' },
       ],
-      headers: [
+      headersSongs: [
+        {
+          text: 'Tên',
+          value: 'name',
+        },
+        {
+          text: 'Thể loại',
+          value: 'typeName',
+        },
+        { text: 'Thể hiện', value: 'singer' },
+        { text: 'Link', value: 'link' },
+      ],
+      headerSastify: [
+        {
+          text: 'Thể loại',
+          value: 'typeName',
+        },
+        {
+          text: 'Tổng cộng',
+          value: 'total',
+        }
+      ],
+      headersBow: [
         {
           text: 'Từ',
           sortable: false,
           value: 'word',
         },
         { text: 'Tần số', value: 'total' },
+        { text: 'Thể loại', value: 'typeName' },
       ],
       color: 'primary',
-      allDataArr: Object.assign({}, allDataArr),
-      bagOfWords: Object.keys(Object.assign({}, bagOfWords)).map((typeName) => ({
-        typeName,
-        wordTotal: bagOfWords[typeName].wordTotal,
-        words: Object.keys(bagOfWords[typeName]).reduce((resultArr, word) => {
-          if (!['tcount', 'wordTotal'].includes(word)) {
-            resultArr.push({
-              word,
-              total: bagOfWords[typeName][word]
-            })
-          }
-          return resultArr
-        }, [])
-      })),
       currentPage: 'dashboard',
       result: '',
       predictText: '',
-      keyword: ''
+      keywordSong: '',
+      keywordBow: '',
+      filterSong: '',
+      filterBow: '',
+      showSastify: false
     }
   },
   computed: {
+    typesNameSongs () {
+      return Object.keys(Object.assign({}, allData))
+    },
+    typesNameBOW () {
+      return Object.keys(Object.assign({}, dataBagOfWords))
+    },
+    listSongs () {
+      return Object.keys(Object.assign({}, allData)).reduce((resultArr, typeName) => {
+        if (this.filterSong && this.filterSong !== typeName) {
+          return resultArr
+        }
+        return [ ...resultArr, ...allData[typeName].songList.map(e => ({...e, typeName})) ]
+      }, [])
+    },
+    bagOfWords () {
+      return Object.keys(Object.assign({}, dataBagOfWords)).reduce((resultArr, typeName) => {
+        if (this.filterBow && this.filterBow !== typeName) {
+          return resultArr
+        }
+        return [ ...resultArr, ...Object.keys(dataBagOfWords[typeName]).reduce((resultArr, word) => {
+          if (!['tcount', 'wordTotal'].includes(word)) {
+            resultArr.push({
+              typeName,
+              word,
+              total: dataBagOfWords[typeName][word]
+            })
+          }
+          return resultArr
+        }, []) ]
+      }, [])
+    },
+    totalLabel () {
+      return dataBagOfWords.total.tcount
+    },
+    sastifyBOW () {
+      return Object.keys(dataBagOfWords).reduce((resultArr, typeName) => {
+        const info = {
+          typeName,
+          total: dataBagOfWords[typeName].wordTotal
+        }
+        resultArr.push(info)
+        return resultArr
+      }, [])
+    }
   },
   methods: {
     async doPredict () {
@@ -173,21 +224,8 @@ export default {
         }
       }
     },
-    doSearch () {
-      let re = new RegExp(this.keyword, 'gmi')
-      this.allDataArr = allDataArr.reduce((resultArr, typeObj) => {
-        typeObj.songList = typeObj.songList.filter(e => e.name.match(re) || e.singer.match(re) || e.lyrics.match(re))
-        if (typeObj.typeName.match(re) || typeObj.songList.length) {
-          resultArr.push(typeObj)
-        }
-        return resultArr
-      }, [])
-    },
-    doCancel () {
-      this.allDataArr = allDataArr
-    },
-    gotoLink (link) {
-      window.open(link)
+    gotoLink (e) {
+      window.open(e.link)
     }
   }
 }

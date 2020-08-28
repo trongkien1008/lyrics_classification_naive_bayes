@@ -9,10 +9,10 @@ const puppeteer = require('puppeteer');
       listLink: []
     },
     //2
-    'nhạc trữ tình': {
-      link: 'https://www.nhaccuatui.com/bai-hat/tru-tinh-moi.html',
-      listLink: []
-    },
+    // 'nhạc trữ tình': {
+    //   link: 'https://www.nhaccuatui.com/bai-hat/tru-tinh-moi.html',
+    //   listLink: []
+    // },
     //3
     'nhạc trịnh': {
       link: 'https://www.nhaccuatui.com/bai-hat/nhac-trinh-moi.html',
@@ -22,12 +22,12 @@ const puppeteer = require('puppeteer');
     'nhạc cách mạng': {
       link: 'https://www.nhaccuatui.com/bai-hat/cach-mang-moi.html',
       listLink: []
-    },
-    //5
-    'rock việt': {
-      link: 'https://www.nhaccuatui.com/bai-hat/rock-viet-moi.html',
-      listLink: []
     }
+    //5
+    // 'rock việt': {
+    //   link: 'https://www.nhaccuatui.com/bai-hat/rock-viet-moi.html',
+    //   listLink: []
+    // }
   }
   const browser = await puppeteer.launch({
     // headless: false
@@ -35,7 +35,7 @@ const puppeteer = require('puppeteer');
   const page = await browser.newPage();
   
   // await page.setViewport({ width: 1200, height: 1800 });
-  const MAX_SONG = 100
+  const MAX_SONG = 30
   let resultObj = {}
   for (let musicType in crawlData) {
     console.log('musicType', musicType)
@@ -44,7 +44,8 @@ const puppeteer = require('puppeteer');
     }
     // Get list song link
     let countSongs = 0
-    for (let i = 0; i < 15; i++) { // i < 5
+    let songLinksArr = []
+    for (let i = 12; i < 25; i++) { 
       let link = `${crawlData[musicType].link.split('.html')[0]}${i ? '.' + i : ''}.html`
       await page.goto(link, {
         waitUntil: 'domcontentloaded'
@@ -63,6 +64,7 @@ const puppeteer = require('puppeteer');
         }
         return resultArr
       })
+      computedLinkArr = computedLinkArr.filter(e => !songLinksArr.includes(e.link))
       // Get lyrics
       for (let songObj of computedLinkArr) {
         console.log('songObj.link', songObj.link)
@@ -86,12 +88,15 @@ const puppeteer = require('puppeteer');
       }
       computedLinkArr = computedLinkArr.filter(songObj => songObj.lyrics)
       resultObj[musicType].songList = resultObj[musicType].songList.concat(computedLinkArr)
+      songLinksArr = resultObj[musicType].songList.map(e => e.link)
       if (countSongs === MAX_SONG) {
+        resultObj[musicType].page = i
+        console.log(`Done ${musicType} in page ${i}`)
         break
       }
     }
   }
   // console.log('resultObj', JSON.stringify(resultObj, 2, 0))
-  await fs.writeFileSync('data/datacm.json', JSON.stringify(resultObj, 2, 0))
+  await fs.writeFileSync('data/data_test_30.json', JSON.stringify(resultObj, 2, 0))
   await browser.close();
 })();

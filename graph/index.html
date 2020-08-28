@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <title>ChartJS</title>
+</head>
+
+<body>
+  <style>
+    .table_chart {
+      margin-bottom: 200px;
+      border: 1px solid #000;
+    }
+
+    .table_chart>div>div>div>div {
+      left: 0px !important;
+      overflow: unset !important;
+      width: 600px !important;
+      height: 160px !important;
+      margin-bottom: 160px;
+    }
+
+    .table_chart>div>div>div>div>table {
+      margin: auto !important;
+      border: 1px solid #000;
+      border-collapse: collapse;
+    }
+
+    th,
+    tr,
+    td {
+      border: 1px solid #000;
+      padding: 3px;
+    }
+  </style>
+
+  <!-- <h1 style="text-align: center;">Algorithm Page</h1> -->
+  <h1 style="text-align: center;">Lyrics Classification using Naive Bayes</h1>
+  <h2 style="text-align: center;" id="total_percent"></h2>
+  <div class="table_chart" id="piechart1" style="text-align: center; width: 33%;  float: left;">Chart 1</div>
+  <div class="table_chart" id="piechart2" style="text-align: center; width: 33%;  float: left;">Chart 2</div>
+  <div class="table_chart" id="piechart3" style="text-align: center; width: 33%;  float: left;">Chart 3</div>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" src="./resultTesting.js"></script>
+  <script type="text/javascript">
+
+    // Load google charts
+    google.charts.load('current', {
+      'packages': ['corechart']
+    });
+    google.charts.setOnLoadCallback(drawChart);
+
+    const computedDataObj = {}
+    const percentObj = {}
+    for (let typeName in resultTest) {
+      computedDataObj[typeName] = {}
+      let total = 0
+      for (let key of Object.keys(resultTest[typeName]).sort()) {
+        computedDataObj[typeName][key] = resultTest[typeName][key].length
+        total += computedDataObj[typeName][key]
+      }
+      if (total && computedDataObj[typeName][typeName] && total) {
+        percentObj[typeName] = computedDataObj[typeName][typeName] / total
+      }
+    }
+    var total_amount = Object.keys(percentObj).reduce((result, typeName) => (result + percentObj[typeName]), 0)
+    var total_percent = (total_amount / Object.keys(percentObj).length) * 100
+    document.getElementById('total_percent').innerHTML = "Độ chính xác trung bình của 3 thể loại: " + total_percent.toFixed(2) + "%";
+    function drawChart() {
+      i = 1
+      for (let typeName of Object.keys(computedDataObj)) {
+        let dataTable = Object.keys(computedDataObj[typeName]).map(e => ([e, computedDataObj[typeName][e]]))
+        dataTable = [['Thể loại', 'Số lượng mỗi loại tin']].concat(dataTable)
+        var data = google.visualization.arrayToDataTable(dataTable);
+        var options = {
+          'title': typeName.toUpperCase(),
+          'titleTextStyle': {
+            fontSize: 18,
+            x: 180
+          },
+          chartArea: {
+            left: 100,
+            width: "82%",
+            height: "82%",
+          },
+          // chartArea:{width: "95%"},
+          'width': 450,
+          'height': 245,
+          'colors': ['#DF0101', '#FF8000', '#00CCCC'],
+          'is3D': true,
+          fontSize: 14,
+        };
+        //https://developers.google.com/chart/interactive/docs/gallery/piechart
+        // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        var chart = new google.visualization.PieChart(document.getElementById('piechart' + i));
+        i++
+        chart.draw(data, options);
+      }
+    }
+  </script>
+
+</body>
+
+</html>
